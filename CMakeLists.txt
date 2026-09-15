@@ -86,7 +86,9 @@ add_library(mplot_fontdata STATIC ${MPLOT_SOURCE_DIR}/mplot/VisualFaceAsm.cpp)
 # Define a list of the modules we wish to compile into our library
 set(MY_MATHPLOT_MODULES
   ${MPLOT_CORE_MODULES}
-  ${MPLOT_SOURCE_DIR}/mplot/GraphVisual.cppm  # The example uses a GraphVisual
+  ${SM_HEXFFT_MODULES}
+  ${MPLOT_SOURCE_DIR}/mplot/HexGridVisual.cppm
+  ${MPLOT_SOURCE_DIR}/mplot/GridVisual.cppm
 )
 # De-duplicate the list
 list(REMOVE_DUPLICATES MATHPLOT_MODULES)
@@ -104,11 +106,13 @@ target_link_libraries(mathplot_modules OpenGL::GL Freetype::Freetype glfw glad m
 # Now it's time to define how we will compile the program prog1
 #
 
-# The sample is compiled from a single c++ file
-add_executable(prog1 prog1.cpp)
+# This program shows all the internal grids to help debug the FFT process
+add_executable(fft_debug fft_debug.cpp)
+target_link_libraries(fft_debug mathplot_modules)
 
-# Link our internal library mathplot_modules
-target_link_libraries(prog1 mathplot_modules)
+# See the hex FFT and adjust a filter parameter live
+add_executable(fft_play fft_play.cpp)
+target_link_libraries(fft_play mathplot_modules)
 
 #
 # All done!
