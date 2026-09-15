@@ -1,15 +1,6 @@
-# mathplot_template
+# Hexagonal FFT
 
-This example project demonstrates how you
-can write and build a program that uses [mathplot](https://github.com/sebsjames/mathplot).
-
-Really, this project is just one `CMakeLists.txt` file containing the
-commands required to use mathplot and a single target (prog1),
-which compiles the example program `prog1.cpp`.
-
-To make your own program, you could either replace
-prog1.cpp with your own code, or incorporate the relevant parts of the
-CMakeLists.txt file into your own CMakeLists.txt in another project.
+The Hexagonal FFT, following Nicholas I. Rummelt's PhD  thesis *Array set addressing: Enabling efficient hexagonally sampled image processing*, University of Florida, 2010.
 
 ## Dependencies
 
@@ -50,14 +41,14 @@ To build and run the example:
 
 ```bash
 # Clone this example
-git clone git@github.com:sebsjames/mathplot_template # or your fork of it
+git clone git@github.com:sebsjames/hex_fft
 
 # Bring in the three submodules - sebsjames/mathplot, sebsjames/maths and nlohmann/json
 # Your project will need these submodules too. They don't HAVE to be
 # submodules, you can just copy or symlink the three codebases if you
 # prefer.
 
-cd mathplot_template # or whatever you named your fork/copy
+cd hex_fft # or whatever you named your fork/copy
 git submodule init
 git submodule update
 
@@ -66,5 +57,5 @@ mkdir build
 cd build
 CC=clang-20 CXX=clang++-20 cmake .. -GNinja
 ninja
-./prog1 # You should see a window containing some graphs
+./fft_play
 ```
