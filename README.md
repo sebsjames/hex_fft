@@ -8,7 +8,7 @@ The FFT implementation presented here can be found in [sebsjames/maths](http://g
 
 ## Example programs
 
-There are two examples, fft_example and fft_debug. Start with fft_example (see 'Building', below). fft_debug shows additional, internal stages in the FFT transform, which was necessary to develop the code).
+There are three examples, fft_example, fft_dynamic and fft_debug. Start with fft_example (see 'Building', below). fft_debug shows additional, internal stages in the FFT transform, which was necessary to develop the code).
 
 ## Using `sm::hexfft`
 

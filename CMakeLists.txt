@@ -114,6 +114,10 @@ target_link_libraries(fft_debug mathplot_modules)
 add_executable(fft_example fft_example.cpp)
 target_link_libraries(fft_example mathplot_modules)
 
+# Dynamic FFT
+add_executable(fft_dynamic fft_dynamic.cpp)
+target_link_libraries(fft_dynamic mathplot_modules)
+
 #
 # All done!
 #
