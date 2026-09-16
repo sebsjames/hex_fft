@@ -2,6 +2,45 @@
 
 The Hexagonal FFT, following Nicholas I. Rummelt's PhD  thesis *Array set addressing: Enabling efficient hexagonally sampled image processing*, University of Florida, 2010.
 
+![A screenshot from the fft_example program showing an hexagonal image of a bicycle and its hexagonal FFT](https://github.com/sebsjames/hex_fft/blob/main/fft_example.png?raw=true)
+
+The FFT implementation presented here can be found in [sebsjames/maths](http://github.com/sebsjames/maths); this repository provides a graphical example of its use. The implementation makes it possible to obtain the hexagonal FFT of an arbitrarily shaped [sm::hexgrid](https://github.com/sebsjames/maths/blob/main/sm/hexgrid.cppm). Your arbitrary hexgrid is placed inside a regular, rectangular hexgrid, with additional hex elements zero-padded.
+
+## Use
+
+Create a hexgrid. The hexgrid constructor args are hex-hex distance, grid width and grid 'z' value (usually set to 0).
+
+```c++
+import sm.hexgrid;
+
+sm::hexgrid<float> hg(0.01f, 4.0f, 0.0f);
+hg.set_circular_boundary (1.0f); // discard outside radius 1
+```
+
+Create some data. The order of the data is defined with the hexgrid. Each hexgrid element has a 'vector iterator', `vi` and provides access to the location of the hex.
+```c++
+import sm.vvec;
+
+sm::vvec<float> data (hg.num(), 0.0f);
+for (auto h : hg.hexen) {
+    data[h.vi] = some_function_of (h.x, h.y);
+}
+```
+
+Create an sm::hexfft::fft object and perform a forward transform. The result is stored in hfft.X_hexgrid, which is a vvec of `std::complex<>` values.
+
+```c++
+import sm.hexfft;
+
+sm::hexfft::fft<float> hfft (&hg); // construct and initialize
+hfft.forward (data); // Perform forward FFT transform
+```
+You can modify the values in `X_hexgrid` to make filters. After changing values in X_hexgrid (perhaps by masking) you can then inverse transform from frequency space to image space
+
+```c++
+sm::vvec<std::complex<float>> invimg = hfft.inverse();
+```
+
 ## Dependencies
 
 If you are using Debian or Ubuntu, the following `apt` command should
@@ -57,5 +96,5 @@ mkdir build
 cd build
 CC=clang-20 CXX=clang++-20 cmake .. -GNinja
 ninja
-./fft_play
+./fft_example # This loads ../bike256.png, so must be run from inside build/
 ```
