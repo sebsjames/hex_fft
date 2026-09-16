@@ -27,7 +27,7 @@ for (auto h : hg.hexen) {
 }
 ```
 
-Create an sm::hexfft::fft object and perform a forward transform. The result is stored in hfft.X_hexgrid, which is a vvec of `std::complex<>` values.
+Create an sm::hexfft::fft object and perform a forward transform. The result is stored in `hfft.X_hexgrid`, which is a `sm::vvec` of `std::complex<>` values.
 
 ```c++
 import sm.hexfft;
@@ -35,7 +35,7 @@ import sm.hexfft;
 sm::hexfft::fft<float> hfft (&hg); // construct and initialize
 hfft.forward (data); // Perform forward FFT transform
 ```
-You can modify the values in `X_hexgrid` to make filters. After changing values in X_hexgrid (perhaps by masking) you can then inverse transform from frequency space to image space
+You can modify the values in `X_hexgrid` to make filters. After changing values in `hfft.X_hexgrid` (perhaps by masking) you can then inverse transform from frequency space to image space
 
 ```c++
 sm::vvec<std::complex<float>> invimg = hfft.inverse();
