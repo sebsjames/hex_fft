@@ -111,8 +111,8 @@ add_executable(fft_debug fft_debug.cpp)
 target_link_libraries(fft_debug mathplot_modules)
 
 # See the hex FFT and adjust a filter parameter live
-add_executable(fft_play fft_play.cpp)
-target_link_libraries(fft_play mathplot_modules)
+add_executable(fft_example fft_example.cpp)
+target_link_libraries(fft_example mathplot_modules)
 
 #
 # All done!
