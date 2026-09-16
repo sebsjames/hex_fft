@@ -24,12 +24,14 @@ import mplot.gridvisual;
 
 int main (int argc, char** argv)
 {
-    float outrad = 1000.0f;
-    if (argc > 1) {
-        outrad = std::stof (argv[1]);
-    }
+    // For masking the FFT. Pass an arg to change from the default
+    float outrad = 2500.0f;
+    if (argc > 1) { outrad = std::stof (argv[1]); }
 
-    mplot::Visual v(1600, 1000, "Hexagonal FFT");
+    // Create the mathplot Visual window
+    mplot::Visual v(1600, 1800, "Hexagonal FFT");
+    v.setSceneTrans (sm::vec<float,3>{ float{3.87172}, float{2.9696}, float{-17.3745} });
+    v.setSceneRotation (sm::quaternion<float>{ float{1}, float{0}, float{0}, float{0} });
 
     // We create a hexgrid for our image
     sm::hexgrid<float> hg(0.01f, 4.0f, 0.0f);
