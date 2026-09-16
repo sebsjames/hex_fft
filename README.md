@@ -39,7 +39,15 @@ import sm.hexfft;
 sm::hexfft::fft<float> hfft (&hg); // construct and initialize
 hfft.forward (data); // Perform forward FFT transform
 ```
-You can modify the values in `X_hexgrid` to make filters. After changing values in `hfft.X_hexgrid` (perhaps by masking) you can then inverse transform from frequency space to image space
+You can modify the values in `X_hexgrid` to make filters. The values in `X_hexgrid` are associated with a frequency hexgrid, `hexfft::fft::hgf`.
+```c++
+for (auto h : hfft.hgf->hexen) { // hgf is a unique_ptr to a hexgrid
+    std::cout << "FFT Frequency " << h.x << ", " << h.y
+              << " has magnitude " << std::real(hfft.X_hexgrid[h.vi]) << std::endl;
+}
+
+```
+After changing values in `hfft.X_hexgrid` (perhaps by masking) you can then inverse transform from frequency space to image space
 
 ```c++
 sm::vvec<std::complex<float>> invimg = hfft.inverse();
