@@ -52,6 +52,7 @@ After changing values in `hfft.X_hexgrid` (perhaps by masking) you can then inve
 ```c++
 sm::vvec<std::complex<float>> invimg = hfft.inverse();
 ```
+The returned data is defined over your original hexgrid, `hg`.
 
 ## Dependencies
 
