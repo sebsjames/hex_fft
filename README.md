@@ -39,7 +39,7 @@ import sm.hexfft;
 sm::hexfft::fft<float> hfft (&hg); // construct and initialize
 hfft.forward (data); // Perform forward FFT transform
 ```
-You can modify the values in `X_hexgrid` to make filters. The values in `X_hexgrid` are associated with a frequency hexgrid, `hexfft::fft::hgf`.
+You can modify the values in `X_hexgrid` to make filters. The values in `X_hexgrid` are associated with a frequency hexgrid, `hexfft::fft::hgf`, which is created when hfft is initialized.
 ```c++
 for (auto h : hfft.hgf->hexen) { // hgf is a unique_ptr to a hexgrid
     std::cout << "FFT Frequency " << h.x << ", " << h.y
@@ -56,6 +56,8 @@ The returned data is defined over your original hexgrid, `hg`.
 
 ## Dependencies
 
+sebsjames/mathplot and sebsjames/maths are implemented as C++ modules. This requires that you use clang-20 or higher and an up-to-date cmake in your toolchain.
+
 If you are using Debian or Ubuntu, the following `apt` command should
 install the mathplot dependencies.
 
@@ -64,6 +66,8 @@ sudo apt install build-essential cmake git ninja-build  \
                  freeglut3-dev libglu1-mesa-dev libxmu-dev libxi-dev \
                  libglfw3-dev libfreetype-dev clang-20 clang-tools-20
 ```
+
+If the cmake that you get from this apt command is too old, then it is easy (and fairly non-invasive) to compile and install it from source.
 
 On Arch Linux the following command should install dependencies:
 ```bash
