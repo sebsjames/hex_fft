@@ -6,7 +6,11 @@ The Hexagonal FFT, following Nicholas I. Rummelt's PhD  thesis *Array set addres
 
 The FFT implementation presented here can be found in [sebsjames/maths](http://github.com/sebsjames/maths); this repository provides a graphical example of its use. The implementation makes it possible to obtain the hexagonal FFT of an arbitrarily shaped [sm::hexgrid](https://github.com/sebsjames/maths/blob/main/sm/hexgrid.cppm). Your arbitrary hexgrid is placed inside a regular, rectangular hexgrid, with additional hex elements zero-padded.
 
-## Use
+## Example programs
+
+There are two examples, fft_example and fft_debug. Start with fft_example (see 'Building', below). fft_debug shows additional, internal stages in the FFT transform, which was necessary to develop the code).
+
+## Using `sm::hexfft`
 
 Create a hexgrid. The hexgrid constructor args are hex-hex distance, grid width and grid 'z' value (usually set to 0).
 
