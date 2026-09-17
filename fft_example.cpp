@@ -54,6 +54,13 @@ int main (int argc, char** argv)
     sm::vvec<float> hex_image_data = sm::algo::hexgrid::resample_image (hg, image_data, dims[0], image_scale, image_offset);
     std::cout << "resample complete" << std::endl;
 
+    // The colour map type for the images
+    auto img_cmap = mplot::ColourMapType::GreyscaleInv;
+    // Colour map for our FFT graphs/frequency space. CET_D01, CET_D01A, CET_D06, CET_D09, CET_C3,
+    // CET_D13, CET_D04, Berlin, Lisbon, Cork and Broc are all good candidates, with light/dark in
+    // the middle, and twin tones for +ve/-ve
+    auto fft_cmap = mplot::ColourMapType::CET_D09;
+
     // Store the width and halfwidth of our grid, to place objects neatly into our scene
     const float hgw = hg.width();
     const float hhgw = hgw / 2.0f;
@@ -64,7 +71,7 @@ int main (int argc, char** argv)
     auto hgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::point_up>>(&hg, o);
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&hex_image_data);
-    hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    hgv->cm.setType (img_cmap);
     hgv->zScale.set_params (0, 0);
     hgv->addLabel ("Input hex image", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
@@ -106,7 +113,7 @@ int main (int argc, char** argv)
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_r);
     fhgv->colourScale.compute_scaling (-900, 1200);
-    fhgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    fhgv->cm.setType (fft_cmap);
     fhgv->zScale.set_params (0, 0);
     fhgv->addLabel ("FFT (real component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
@@ -118,7 +125,7 @@ int main (int argc, char** argv)
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_i);
     fhgv->colourScale.compute_scaling (-900, 1200);
-    fhgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    fhgv->cm.setType (fft_cmap);
     fhgv->zScale.set_params (0, 0);
     fhgv->addLabel ("FFT (imaginary component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
@@ -159,7 +166,7 @@ int main (int argc, char** argv)
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_r);
     fhgv->colourScale.compute_scaling (-900, 1200);
-    fhgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    fhgv->cm.setType (fft_cmap);
     fhgv->zScale.set_params (0, 0);
     fhgv->addLabel ("FFT masked inside (real)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
@@ -170,7 +177,7 @@ int main (int argc, char** argv)
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_i);
     fhgv->colourScale.compute_scaling (-900, 1200);
-    fhgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    fhgv->cm.setType (fft_cmap);
     fhgv->zScale.set_params (0, 0);
     fhgv->addLabel ("FFT masked inside (imaginary)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
@@ -192,7 +199,7 @@ int main (int argc, char** argv)
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_r);
     fhgv->colourScale.compute_scaling (-900, 1200);
-    fhgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    fhgv->cm.setType (fft_cmap);
     fhgv->zScale.set_params (0, 0);
     fhgv->addLabel ("FFT masked outside (real)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
@@ -203,7 +210,7 @@ int main (int argc, char** argv)
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_i);
     fhgv->colourScale.compute_scaling (-900, 1200);
-    fhgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    fhgv->cm.setType (fft_cmap);
     fhgv->zScale.set_params (0, 0);
     fhgv->addLabel ("FFT masked outside (imaginary)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
@@ -216,7 +223,7 @@ int main (int argc, char** argv)
     hgv = std::make_unique<mplot::HexGridVisual<float>>(&hg, o + sm::vec<float>{2.0f * hgw, -hgw * 1.5f});
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&img_rin);
-    hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    hgv->cm.setType (img_cmap);
     hgv->zScale.set_params (0, 0);
     hgv->addLabel ("Inverse FFT masked inside radius (high pass/low masked)", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
@@ -229,7 +236,7 @@ int main (int argc, char** argv)
     hgv = std::make_unique<mplot::HexGridVisual<float>>(&hg, o + sm::vec<float>{2.0f * hgw, -hgw * 3.0f});
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&img_rout);
-    hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    hgv->cm.setType (img_cmap);
     hgv->zScale.set_params (0, 0);
     hgv->addLabel ("Inverse FFT masked outside radius (low pass/ high masked)", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
