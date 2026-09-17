@@ -80,19 +80,20 @@ add_library(glad STATIC ${MPLOT_SOURCE_DIR}/mplot/glad/gl.c)
 add_library(mplot_fontdata STATIC ${MPLOT_SOURCE_DIR}/mplot/VisualFaceAsm.cpp)
 
 #
-# Compile a library with the mathplot features we want
+# Compile a library with the mathplot features we need for this program
 #
 
-# Define a list of the modules we wish to compile into our library
+# Define a list of the modules we need in the library
 set(MY_MATHPLOT_MODULES
   ${MPLOT_CORE_MODULES}
   ${SM_HEXFFT_MODULES}
   ${MPLOT_SOURCE_DIR}/mplot/HexGridVisual.cppm
   ${MPLOT_SOURCE_DIR}/mplot/GridVisual.cppm
+  ${MPLOT_SOURCE_DIR}/mplot/ColourBarVisual.cppm
 )
 # De-duplicate the list
 list(REMOVE_DUPLICATES MATHPLOT_MODULES)
-# Add a library called mathplot_modules
+# Add a library called mathplot_modules (the name isn't important, you can choose an alternative)
 add_library(mathplot_modules SHARED)
 # Attach the list of modules to the library
 target_sources(mathplot_modules
@@ -103,7 +104,7 @@ target_sources(mathplot_modules
 target_link_libraries(mathplot_modules OpenGL::GL Freetype::Freetype glfw glad mplot_fontdata)
 
 #
-# Now it's time to define how we will compile the program prog1
+# Now it's time to define some executable targets (fft_example, etc)
 #
 
 # This program shows all the internal grids to help debug the FFT process
@@ -113,6 +114,10 @@ target_link_libraries(fft_debug mathplot_modules)
 # See the hex FFT and adjust a filter parameter live
 add_executable(fft_example fft_example.cpp)
 target_link_libraries(fft_example mathplot_modules)
+
+# Static FFT of functions
+add_executable(fft_static fft_static.cpp)
+target_link_libraries(fft_static mathplot_modules)
 
 # Dynamic FFT
 add_executable(fft_dynamic fft_dynamic.cpp)

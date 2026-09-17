@@ -67,7 +67,7 @@ int main (int argc, char** argv)
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&circ_image_data);
     hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
-    hgv->zScale.set_params (0, 0);
+    hgv->zScale.null_scaling();
     hgv->addLabel ("Input hex image", sm::vec<float>{-chhgw, -chhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
     v.addVisualModel (hgv);
@@ -76,7 +76,7 @@ int main (int argc, char** argv)
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&rect_image_data);
     hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
-    hgv->zScale.set_params (0, 0);
+    hgv->zScale.null_scaling();
     hgv->addLabel ("Input hex image", sm::vec<float>{-rhhgw, -rhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
     v.addVisualModel (hgv);
@@ -135,7 +135,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&d0);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::GreyscaleInv);
     gv->addLabel ("circ d0 (odd input rows)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -145,7 +145,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&d1);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::GreyscaleInv);
     gv->addLabel ("circ d1 (even)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -155,7 +155,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&d0r);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::GreyscaleInv);
     gv->addLabel ("rect d0 (odd input rows)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -165,7 +165,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&d1r);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::GreyscaleInv);
     gv->addLabel ("rect d1 (even)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -197,7 +197,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&X0);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::Ice);
     gv->addLabel ("X0 (odd, re-quadranted)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -207,7 +207,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&X1);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::Ice);
     gv->addLabel ("X1 (even, re-quadranted)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -226,7 +226,7 @@ int main (int argc, char** argv)
     fhgv->setScalarData (&fft_r);
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::Ice);
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT (real component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     v.addVisualModel (fhgv);
@@ -238,7 +238,7 @@ int main (int argc, char** argv)
     fhgv->setScalarData (&fft_i);
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::Ice);
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT (imaginary component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     v.addVisualModel (fhgv);
@@ -268,7 +268,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&X0);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::Ice);
     gv->addLabel ("Low-pass X0 (odd, de-quadranted for inverse)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -278,7 +278,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&X1);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::Ice);
     gv->addLabel ("Low-pass X1 (even, de-quadranted for inverse)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -288,7 +288,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&d0);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::GreyscaleInv);
     gv->addLabel ("d0 (odd input rows)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -298,7 +298,7 @@ int main (int argc, char** argv)
     gv->set_parent (v.get_id());
     gv->gridVisMode = mplot::GridVisMode::RectInterp;
     gv->setScalarData (&d1);
-    gv->zScale.set_params (0, 0);
+    gv->zScale.null_scaling();
     gv->cm.setType (mplot::ColourMapType::GreyscaleInv);
     gv->addLabel ("d1 (even)", sm::vec<float>({0,-0.2,0}), mplot::TextFeatures(0.05f));
     gv->finalize();
@@ -312,7 +312,7 @@ int main (int argc, char** argv)
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&img_r);
     hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
-    hgv->zScale.set_params (0, 0);
+    hgv->zScale.null_scaling();
     hgv->addLabel ("FFT masked inside radius", sm::vec<float>({-0.75,-1.2,0}), mplot::TextFeatures(0.05f));
     hgv->finalize();
     v.addVisualModel (hgv);
@@ -324,7 +324,7 @@ int main (int argc, char** argv)
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&img_rout);
     hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
-    hgv->zScale.set_params (0, 0);
+    hgv->zScale.null_scaling();
     hgv->addLabel ("FFT masked outside radius", sm::vec<float>({-0.75,-1.2,0}), mplot::TextFeatures(0.05f));
     hgv->finalize();
     v.addVisualModel (hgv);

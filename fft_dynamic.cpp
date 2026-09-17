@@ -54,7 +54,7 @@ int main (int argc, char** argv)
     hgv->setScalarData (&hex_image_data);
     hgv->hexVisMode = mplot::HexVisMode::Triangles;
     hgv->cm.setType (mplot::ColourMapType::Ice);
-    hgv->zScale.set_params (0, 0);
+    hgv->zScale.null_scaling();
     hgv->addLabel ("Input hex image", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
     auto hgvp = v.addVisualModel (hgv);
@@ -85,7 +85,7 @@ int main (int argc, char** argv)
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::Ice);
     fhgv->hexVisMode = mplot::HexVisMode::Triangles;
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT (real component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     auto r_fftp = v.addVisualModel (fhgv);
@@ -98,7 +98,7 @@ int main (int argc, char** argv)
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::Ice);
     fhgv->hexVisMode = mplot::HexVisMode::Triangles;
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT (imaginary component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     auto i_fftp = v.addVisualModel (fhgv);

@@ -20,7 +20,7 @@ import sm.grid;
 import mplot.loadpng;
 import mplot.visual;
 import mplot.hexgridvisual;
-import mplot.gridvisual;
+import mplot.colourbarvisual;
 
 int main (int argc, char** argv)
 {
@@ -107,26 +107,45 @@ int main (int argc, char** argv)
     const float fhgw = hfft.hgf->width() * myUscale;
     const float fhhgw = fhgw / 2.0f;
 
+    // Use a common scale across the FFTs
+    constexpr bool fixed_colourscale = true;
+    sm::scale<float, float> clrscale;
+    clrscale.compute_scaling (-1200, 1200);
+
     // Show the real part of FFT on a hexgrid
     auto fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_r);
-    fhgv->colourScale.compute_scaling (-900, 1200);
+    if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT (real component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
-    v.addVisualModel (fhgv);
+    auto fhgvp = v.addVisualModel (fhgv);
+
+    // Colourbar
+    auto cbv = std::make_unique<mplot::ColourBarVisual<float>>(o + sm::vec<float>{ hgw + 1.1f * fhhgw, fhgw * 0.6f + 0.2f });
+    cbv->set_parent (v.get_id());
+    cbv->orientation = mplot::colourbar_orientation::vertical;
+    cbv->tickside = mplot::colourbar_tickside::right_or_below;
+    cbv->width = 0.06f;
+    cbv->length = 0.4f;
+    cbv->framelinewidth = 0.003f;
+    // Copy colourmap and scale from the FFT HexGridVisual to this colourbar visual
+    cbv->cm = fhgvp->cm;
+    cbv->scale = fhgvp->colourScale;
+    cbv->finalize();
+    v.addVisualModel (cbv);
 
     // Show the imaginary part of FFT on a hexgrid
     fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, -fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_i);
-    fhgv->colourScale.compute_scaling (-900, 1200);
+    if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT (imaginary component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     v.addVisualModel (fhgv);
@@ -143,7 +162,7 @@ int main (int argc, char** argv)
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&img_r);
     hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
-    hgv->zScale.set_params (0, 0);
+    hgv->zScale.null_scaling();
     hgv->addLabel ("Inverse FFT", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
     v.addVisualModel (hgv);
@@ -165,9 +184,9 @@ int main (int argc, char** argv)
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_r);
-    fhgv->colourScale.compute_scaling (-900, 1200);
+    if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT masked inside (real)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     v.addVisualModel (fhgv);
@@ -176,9 +195,9 @@ int main (int argc, char** argv)
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_i);
-    fhgv->colourScale.compute_scaling (-900, 1200);
+    if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT masked inside (imaginary)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     v.addVisualModel (fhgv);
@@ -198,9 +217,9 @@ int main (int argc, char** argv)
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_r);
-    fhgv->colourScale.compute_scaling (-900, 1200);
+    if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT masked outside (real)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     v.addVisualModel (fhgv);
@@ -209,9 +228,9 @@ int main (int argc, char** argv)
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_i);
-    fhgv->colourScale.compute_scaling (-900, 1200);
+    if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
-    fhgv->zScale.set_params (0, 0);
+    fhgv->zScale.null_scaling();
     fhgv->addLabel ("FFT masked outside (imaginary)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     v.addVisualModel (fhgv);
@@ -224,7 +243,7 @@ int main (int argc, char** argv)
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&img_rin);
     hgv->cm.setType (img_cmap);
-    hgv->zScale.set_params (0, 0);
+    hgv->zScale.null_scaling();
     hgv->addLabel ("Inverse FFT masked inside radius (high pass/low masked)", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
     v.addVisualModel (hgv);
@@ -237,7 +256,7 @@ int main (int argc, char** argv)
     hgv->set_parent (v.get_id());
     hgv->setScalarData (&img_rout);
     hgv->cm.setType (img_cmap);
-    hgv->zScale.set_params (0, 0);
+    hgv->zScale.null_scaling();
     hgv->addLabel ("Inverse FFT masked outside radius (low pass/ high masked)", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
     v.addVisualModel (hgv);
