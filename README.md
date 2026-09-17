@@ -8,7 +8,7 @@ The FFT implementation presented here can be found in [sebsjames/maths](http://g
 
 ## Example programs
 
-There are three examples, fft_example, fft_dynamic and fft_debug. Start with fft_example (see 'Building', below). fft_debug shows additional, internal stages in the FFT transform, which was necessary to develop the code).
+There are four examples, fft_example, fft_static, fft_dynamic and fft_debug. Start with fft_example, which shows a bicycle image and its FFT (see 'Building', below). fft_static shows the FFTs of several functions (angled sine waves, mostly) and is helpful for getting some understanding of the FFT output. fft_dynamic demonstrates an animated function and FFT. fft_debug shows additional, internal stages in the many transforms that combine to make the hex FFT. This was useful during development and is left here to track down any future bugs.
 
 ## Using `sm::hexfft`
 

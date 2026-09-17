@@ -19,10 +19,14 @@ import sm.grid;
 
 import mplot.loadpng;
 import mplot.visual;
+import mplot.graphstyles;
 import mplot.hexgridvisual;
 import mplot.gridvisual;
+import mplot.axesvisual;
+import mplot.colourbarvisual;
+import mplot.txtvisual;
 
-// Helper function to draw one group of function + FFT graphs
+// Helper function to draw one group of function + FFT graphs. Called many times by draw_all
 void draw_set (mplot::Visual<>& v, const sm::vec<float>& o, const std::string& fn_name,
                sm::hexgrid<float>& hg, sm::hexfft::fft<float>& hfft, sm::vvec<float>& hex_image_data, bool flatf = false)
 {
@@ -37,11 +41,24 @@ void draw_set (mplot::Visual<>& v, const sm::vec<float>& o, const std::string& f
     hgv->hexVisMode = mplot::HexVisMode::HexInterp;
     hgv->cm.setType (mplot::ColourMapType::Ice);
     if (flatf) { hgv->zScale.null_scaling(); }
-    hgv->addLabel (fn_name, sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
+    hgv->addLabel (fn_name, sm::vec<float>{-hhgw - 0.9f * hhgw, hhgw * 0.9f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
     v.addVisualModel (hgv);
 
-    // Carry out the FFT transform with sm::hexfft::fft
+    // Axes for the function
+    auto tav = std::make_unique<mplot::AxesVisual<float>>(o + sm::vec<>{-hhgw, -hhgw} );
+    tav->set_parent (v.get_id());
+    tav->axis_ends = {hgw, hgw};
+    tav->input_min = {-hg.width() / 2.0f, -hg.width() / 2.0f, 0};
+    tav->input_max = {hg.width() / 2.0f, hg.width() / 2.0f, 1};
+    tav->xlabel = "x";
+    tav->ylabel = "y";
+    tav->fontsize = 0.03f;
+    tav->axisstyle = mplot::axisstyle::L;
+    tav->finalize();
+    v.addVisualModel (tav);
+
+    // Compute the FFT
     hfft.forward (hex_image_data);
 
     // Extract real and imaginary components into vvecs for visualization
@@ -60,55 +77,109 @@ void draw_set (mplot::Visual<>& v, const sm::vec<float>& o, const std::string& f
     const float fhhgw = fhgw / 2.0f;
 
     // Show the real part of FFT on a hexgrid
-    auto fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, 0.0f });
+    auto fftpos = o + sm::vec<float>{ hgw, 0.0f };
+    auto fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), fftpos);
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_r);
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::CET_D09);
     fhgv->hexVisMode = mplot::HexVisMode::HexInterp;
-    //fhgv->zScale.null_scaling();
-    //fhgv->zScale.compute_scaling (0, 1200);
-    fhgv->addLabel ("FFT (real component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
+    if (flatf) { fhgv->zScale.null_scaling(); }
+    fhgv->addLabel ("FFT (real component)", sm::vec<float>{-fhhgw, fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
-    v.addVisualModel (fhgv);
+    auto fhgvp = v.addVisualModel (fhgv);
+
+    // Axes for the real FFT
+    tav = std::make_unique<mplot::AxesVisual<float>>(fftpos + sm::vec<>{-fhhgw, -fhhgw} );
+    tav->set_parent (v.get_id());
+    tav->axis_ends = {fhgw, fhgw};
+    tav->input_min = {-hfft.hgf->width() / 2.0f, -hfft.hgf->width() / 2.0f, 0};
+    tav->input_max = {hfft.hgf->width() / 2.0f, hfft.hgf->width() / 2.0f, 1};
+    tav->xlabel = "f_y";
+    tav->ylabel = "f_x";
+    tav->fontsize = 0.03f;
+    tav->axisstyle = mplot::axisstyle::L;
+    tav->finalize();
+    v.addVisualModel (tav);
+
+    // Colourbar for the real FFT
+    auto cbv = std::make_unique<mplot::ColourBarVisual<float>>(fftpos + sm::vec<>{-fhhgw, -fhhgw - 0.2f});
+    cbv->set_parent (v.get_id());
+    cbv->twodimensional (false);
+    cbv->orientation = mplot::colourbar_orientation::horizontal;
+    cbv->tickside = mplot::colourbar_tickside::right_or_below;
+    cbv->width = 0.06f;
+    cbv->length = 0.4f;
+    cbv->framelinewidth = 0.003f;
+    cbv->tf.fontsize = 0.03f;
+    cbv->cm = fhgvp->cm;
+    cbv->scale = fhgvp->colourScale;
+    cbv->finalize();
+    v.addVisualModel (cbv);
 
     // Show the imaginary part of FFT on a hexgrid
-    fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw + 1.2f * fhgw, 0.0f });
+    fftpos = o + sm::vec<float>{ hgw + 1.2f * fhgw, 0.0f };
+    fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), fftpos);
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
     fhgv->setScalarData (&fft_i);
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::CET_D09);
     fhgv->hexVisMode = mplot::HexVisMode::HexInterp;
-    //fhgv->zScale.null_scaling();
-    fhgv->zScale.compute_scaling (0, 1200);
-    fhgv->addLabel ("FFT (imaginary component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
+    if (flatf) { fhgv->zScale.null_scaling(); }
+    fhgv->addLabel ("FFT (imaginary component)", sm::vec<float>{-fhhgw, fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
-    v.addVisualModel (fhgv);
+    fhgvp = v.addVisualModel (fhgv);
+
+    // Axes for imaginary FFT
+    tav = std::make_unique<mplot::AxesVisual<float>>(fftpos + sm::vec<>{-fhhgw, -fhhgw} );
+    tav->set_parent (v.get_id());
+    tav->axis_ends = {fhgw, fhgw};
+    tav->input_min = {-hfft.hgf->width() / 2.0f, -hfft.hgf->width() / 2.0f, 0};
+    tav->input_max = {hfft.hgf->width() / 2.0f, hfft.hgf->width() / 2.0f, 1};
+    tav->xlabel = "f_y";
+    tav->ylabel = "";
+    tav->fontsize = 0.03f;
+    tav->axisstyle = mplot::axisstyle::L;
+    tav->finalize();
+    v.addVisualModel (tav);
+
+    // Colourbar for imaginary FFT
+    cbv = std::make_unique<mplot::ColourBarVisual<float>>(fftpos + sm::vec<>{-fhhgw, -fhhgw - 0.2f});
+    cbv->set_parent (v.get_id());
+    cbv->twodimensional (false);
+    cbv->orientation = mplot::colourbar_orientation::horizontal;
+    cbv->tickside = mplot::colourbar_tickside::right_or_below;
+    cbv->width = 0.06f;
+    cbv->length = 0.4f;
+    cbv->framelinewidth = 0.003f;
+    cbv->tf.fontsize = 0.03f;
+    // Copy colourmap and scale from the FFT HexGridVisual to this colourbar visual
+    cbv->cm = fhgvp->cm;
+    cbv->scale = fhgvp->colourScale;
+    cbv->finalize();
+    v.addVisualModel (cbv);
 }
 
-int main (int argc, char** argv)
+// Draw all the functions.
+void draw_all (mplot::Visual<>& v, sm::hexgrid<float>& hg, sm::hexfft::fft<float>& hfft,
+               sm::vvec<float>& data, bool flatf = false)
 {
     using mc = sm::mathconst<float>;
 
-    // Create the mathplot Visual window
-    mplot::Visual v(1600, 1800, "Dynamic FFT");
-    v.setSceneTrans (sm::vec<float,3>{ float{3.87172}, float{2.9696}, float{-17.3745} });
-    v.rotateAboutNearest (true);
+    // Clear visual models first
+    v.clear();
 
-    // We create a hexgrid for our image
-    sm::hexgrid<float> hg(0.01f, 4.0f, 0.0f);
+    const sm::vec<float> o0 = sm::vec<float>{-6.0f, 0.0f};
 
-    hg.set_rectangular_boundary (2.0f, 2.0f);
-    // Experiment with the circular boundary - you can see the artefacts from the boundary in the FFTs
-    //hg.set_circular_boundary (1.0f);
+    // User info
+    auto tv = std::make_unique<mplot::TxtVisual<>> ("Use key '3' to toggle 3D graphs",
+                                                    o0 + sm::vec<>{-1.0f, 1.4f}, mplot::TextFeatures (0.1f));
+    tv->set_parent (v.get_id());
+    tv->finalize();
+    v.addVisualModel (tv);
 
-    // Function data container
-    sm::vvec<float> data (hg.num());
-
-    // Initialize our FFT object
-    sm::hexfft::fft<float> hfft (&hg);
 
     // First function: circularly symmetric sine, radially decreasing
     sm::vvec<float> r(hg.num(), 0.0f);
@@ -118,9 +189,8 @@ int main (int argc, char** argv)
         data[ri] = std::sin (k * r[ri]) / k * r[ri];
     }
 
-    const sm::vec<float> o0 = sm::vec<float>{-6.0f, 0.0f};
     sm::vec<float> o = o0;
-    draw_set (v, o, "Decaying sine, k = 4", hg, hfft, data);
+    draw_set (v, o, "Decaying sine, k = 4", hg, hfft, data, flatf);
 
     // Circ symmetric sine, change k
     k = 16.0f;
@@ -129,17 +199,17 @@ int main (int argc, char** argv)
         data[ri] = std::sin (k * r[ri]) / k * r[ri];
     }
     o[1] -= 2.2f;
-    draw_set (v, o, "Decaying sine, k = 16", hg, hfft, data);
+    draw_set (v, o, "Decaying sine, k = 16", hg, hfft, data, flatf);
 
     // Horz sine
     for (unsigned int ri = 0; ri < hg.num(); ++ri) { data[ri] = 0.2f * std::sin (k * hg.d_x[ri]); }
     o[1] -= 2.2f;
-    draw_set (v, o, "Horz sine, k = 16", hg, hfft, data);
+    draw_set (v, o, "Horz sine, k = 16", hg, hfft, data, flatf);
 
     // Vert sine
     for (unsigned int ri = 0; ri < hg.num(); ++ri) { data[ri] = 0.2f * std::sin (k * hg.d_y[ri]); }
     o[1] -= 2.2f;
-    draw_set (v, o, "Vert sine, k = 16", hg, hfft, data);
+    draw_set (v, o, "Vert sine, k = 16", hg, hfft, data, flatf);
 
     // Diagonal sine
     float m = std::sqrt (1.0f + std::tan(45.0f * mc::deg2rad) * std::tan(45.0f * mc::deg2rad));
@@ -148,7 +218,7 @@ int main (int argc, char** argv)
         data[ri] = 0.2f * std::sin (k / m * f);
     }
     o[1] -= 2.2f;
-    draw_set (v, o, "45deg sine, k = 16", hg, hfft, data);
+    draw_set (v, o, "45deg sine, k = 16", hg, hfft, data, flatf);
 
     // Diagonal sine
     m = std::sqrt (1.0f + std::tan(30.0f * mc::deg2rad) * std::tan(30.0f * mc::deg2rad));
@@ -157,7 +227,7 @@ int main (int argc, char** argv)
         data[ri] = 0.2f * std::sin (k / m * f);
     }
     o[1] -= 2.2f;
-    draw_set (v, o, "30deg sine, k = 16", hg, hfft, data);
+    draw_set (v, o, "30deg sine, k = 16", hg, hfft, data, flatf);
 
     // Diagonal sine
     m = std::sqrt (1.0f + std::tan(60.0f * mc::deg2rad) * std::tan(60.0f * mc::deg2rad));
@@ -167,7 +237,7 @@ int main (int argc, char** argv)
     }
     // New col
     o = o0 + sm::vec<float>{6.3f};
-    draw_set (v, o, "60deg sine, k = 16", hg, hfft, data);
+    draw_set (v, o, "60deg sine, k = 16", hg, hfft, data, flatf);
 
     // Diagonal sine, low freq
     k = 4.0f;
@@ -177,7 +247,7 @@ int main (int argc, char** argv)
         data[ri] = 0.2f * std::sin (k / m * f);
     }
     o[1] -= 2.2f;
-    draw_set (v, o, "60deg sine, low freq (k = 4)", hg, hfft, data);
+    draw_set (v, o, "60deg sine, low freq (k = 4)", hg, hfft, data, flatf);
 
     // Diagonal sine, high freq
     k = 64.0f;
@@ -187,7 +257,7 @@ int main (int argc, char** argv)
         data[ri] = 0.2f * std::sin (k / m * f);
     }
     o[1] -= 2.2f;
-    draw_set (v, o, "60deg sine, high freq (k = 64)", hg, hfft, data);
+    draw_set (v, o, "60deg sine, high freq (k = 64)", hg, hfft, data, flatf);
 
     // Diagonal sine, high freq near limit
     k = 256.0f;
@@ -197,7 +267,7 @@ int main (int argc, char** argv)
         data[ri] = 0.2f * std::sin (k / m * f);
     }
     o[1] -= 2.2f;
-    draw_set (v, o, "30deg sine, V high freq (k = 256)", hg, hfft, data);
+    draw_set (v, o, "30deg sine, V high freq (k = 256)", hg, hfft, data, flatf);
 
     // Manually set nyquist limit
     for (unsigned int ri = 0; ri < hg.num(); ++ri) {
@@ -205,7 +275,7 @@ int main (int argc, char** argv)
         data[ri] = ((2 + ((hg.d_gi[ri]) % 2)) % 2)  == 0 ? 0.2f : -0.2f;
     }
     o[1] -= 2.2f;
-    draw_set (v, o, "Freq limit (gi)", hg, hfft, data, true);
+    draw_set (v, o, "Freq limit (gi)", hg, hfft, data, flatf);
 
     // Manually set nyquist limit
     for (unsigned int ri = 0; ri < hg.num(); ++ri) {
@@ -213,7 +283,7 @@ int main (int argc, char** argv)
         data[ri] = ((2 + ((hg.d_ri[ri]) % 2)) % 2)  == 0 ? 0.2f : -0.2f;
     }
     o[1] -= 2.2f;
-    draw_set (v, o, "(-30deg), Freq limit (ri)", hg, hfft, data, true);
+    draw_set (v, o, "(-30deg), Freq limit (ri)", hg, hfft, data, flatf);
 
     // Manually set nyquist limit
     for (unsigned int ri = 0; ri < hg.num(); ++ri) {
@@ -222,7 +292,7 @@ int main (int argc, char** argv)
         data[ri] = ((2 + (bi % 2)) % 2) == 0 ? 0.2f : -0.2f;
     }
     o = o0 + sm::vec<float>{2 * 6.3f};
-    draw_set (v, o, "(30deg), Freq limit (bi)", hg, hfft, data, true);
+    draw_set (v, o, "(30deg), Freq limit (bi)", hg, hfft, data, flatf);
 
     // Diagonal sine always increasing
     k = 16.0f;
@@ -236,7 +306,7 @@ int main (int argc, char** argv)
     // so that mean is 0
     for (unsigned int ri = 0; ri < hg.num(); ++ri) { data[ri] -= sum / 2.0f; }
     o[1] -= 2.2f;
-    draw_set (v, o, "60deg sine increasing, k = 16", hg, hfft, data);
+    draw_set (v, o, "60deg sine increasing, k = 16", hg, hfft, data, flatf);
 
     // Diagonal sine increasing, but with more power in the high freq.
     k = 16.0f;
@@ -250,9 +320,63 @@ int main (int argc, char** argv)
     // so that mean is 0
     for (unsigned int ri = 0; ri < hg.num(); ++ri) { data[ri] -= sum / 2.0f; }
     o[1] -= 2.2f;
-    draw_set (v, o, "60deg sine increasing, k = 16", hg, hfft, data);
+    draw_set (v, o, "60deg sine increasing, k = 16", hg, hfft, data, flatf);
+}
 
-    v.keepOpen();
+// Extend mplot::Visual to add a key command for 'show 3D'
+struct myvisual final : public mplot::Visual<>
+{
+    // Boilerplate constructor (just copy this):
+    myvisual (int width, int height, const std::string& title) : mplot::Visual<> (width, height, title) {}
+    bool threedee = false;
+protected:
+    void key_callback_extra (int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods) override
+    {
+        // Bind the '3' key to toggle the '3D' attribute
+        if (key == mplot::key::n3 && action == mplot::keyaction::press) {
+            this->threedee = this->threedee ? false : true;
+        }
+        if (key == mplot::key::h && action == mplot::keyaction::press) {
+            std::cout << "fft_static extra help:\n";
+            std::cout << "3: 'Toggle 3D graphs'\n";
+        }
+    }
+};
+
+// The main program entry point
+int main (int argc, char** argv)
+{
+    // Create the mathplot Visual window
+    myvisual v(1600, 1800, "Dynamic FFT");
+    v.setSceneTrans (sm::vec<float,3>{ float{3.87172}, float{2.9696}, float{-17.3745} });
+    v.rotateAboutNearest (true);
+
+    // We create a hexgrid for our image
+    sm::hexgrid<float> hg(0.01f, 4.0f, 0.0f);
+
+    hg.set_rectangular_boundary (2.0f, 2.0f);
+    // Experiment with the circular boundary - you can see the artefacts from the boundary in the FFTs
+    //hg.set_circular_boundary (1.0f);
+
+    // Create our data container for the output of the function
+    sm::vvec<float> data (hg.num());
+
+    // Initialize our FFT object
+    sm::hexfft::fft<float> hfft (&hg);
+
+    bool curr_threedee = v.threedee;
+
+    // Draw all the functions
+    draw_all (v, hg, hfft, data, curr_threedee);
+
+    while (!v.readyToFinish()) {
+        v.waitevents(0.017);
+        if (v.threedee != curr_threedee) {
+            curr_threedee = v.threedee;
+            draw_all (v, hg, hfft, data, curr_threedee);
+        }
+        v.render();
+    }
 
     return 0;
 }

@@ -90,6 +90,8 @@ set(MY_MATHPLOT_MODULES
   ${MPLOT_SOURCE_DIR}/mplot/HexGridVisual.cppm
   ${MPLOT_SOURCE_DIR}/mplot/GridVisual.cppm
   ${MPLOT_SOURCE_DIR}/mplot/ColourBarVisual.cppm
+  ${MPLOT_SOURCE_DIR}/mplot/AxesVisual.cppm
+  ${MPLOT_SOURCE_DIR}/mplot/TxtVisual.cppm
 )
 # De-duplicate the list
 list(REMOVE_DUPLICATES MATHPLOT_MODULES)
