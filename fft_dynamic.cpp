@@ -62,14 +62,6 @@ int main (int argc, char** argv)
     // Carry out the FFT transform with sm::hexfft::fft
     sm::hexfft::fft<float> hfft (&hg, hex_image_data);
 
-    // Extract real and imaginary components into vvecs for visualization
-    sm::vvec<float> fft_r (hfft.X_hexgrid.size());
-    sm::vvec<float> fft_i (hfft.X_hexgrid.size());
-    for (std::uint32_t i = 0; i < fft_r.size(); ++i) {
-        fft_r[i] = std::real(hfft.X_hexgrid[i]);
-        fft_i[i] = std::imag(hfft.X_hexgrid[i]);
-    }
-
     // Get some information about the size of the frequency hexgrid. Uscale is a scaling factor to
     // make the frequency grid (which is 1/L units) approximately the same size in mathplot scene
     // coordinates as the image.
@@ -81,7 +73,8 @@ int main (int argc, char** argv)
     auto fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_r);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_real_scalar;
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::Ice);
     fhgv->hexVisMode = mplot::HexVisMode::Triangles;
@@ -94,7 +87,8 @@ int main (int argc, char** argv)
     fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, -fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_i);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_imaginary_scalar;
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::Ice);
     fhgv->hexVisMode = mplot::HexVisMode::Triangles;
@@ -116,14 +110,9 @@ int main (int argc, char** argv)
         }
 
         hfft.forward (hex_image_data);
-        for (std::uint32_t i = 0; i < fft_r.size(); ++i) {
-            fft_r[i] = std::real(hfft.X_hexgrid[i]);
-            fft_i[i] = std::imag(hfft.X_hexgrid[i]);
-        }
-
-        if (v.validVisualModel (hgvp) != nullptr) { hgvp->updateData (&hex_image_data); }
-        if (v.validVisualModel (r_fftp) != nullptr) { r_fftp->updateData (&fft_r); }
-        if (v.validVisualModel (i_fftp) != nullptr) { i_fftp->updateData (&fft_i); }
+        hgvp->reinitColours();
+        r_fftp->reinitColours();
+        i_fftp->reinitColours();
 
         k += 0.2f;
 

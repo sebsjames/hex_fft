@@ -93,14 +93,6 @@ int main (int argc, char** argv)
     hfft.forward (hex_image_data);  // forward transform when ready
 #endif
 
-    // Extract real and imaginary components into vvecs for visualization
-    sm::vvec<float> fft_r (hfft.X_hexgrid.size());
-    sm::vvec<float> fft_i (hfft.X_hexgrid.size());
-    for (std::uint32_t i = 0; i < fft_r.size(); ++i) {
-        fft_r[i] = std::real(hfft.X_hexgrid[i]);
-        fft_i[i] = std::imag(hfft.X_hexgrid[i]);
-    }
-
     // Get some information about the size of the frequency hexgrid. Uscale is a scaling factor to
     // make the frequency grid (which is 1/L units) approximately the same size in mathplot scene
     // coordinates as the image.
@@ -117,7 +109,8 @@ int main (int argc, char** argv)
     auto fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_r);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_real_scalar;
     if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
     fhgv->zScale.null_scaling();
@@ -158,7 +151,8 @@ int main (int argc, char** argv)
     fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, -fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_i);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_imaginary_scalar;
     if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
     fhgv->zScale.null_scaling();
@@ -230,15 +224,12 @@ int main (int argc, char** argv)
     sm::vvec<std::complex<float>> invimg_in = hfft.inverse();
 
     // Show masked-inside FFT
-    for (std::uint32_t i = 0; i < fft_r.size(); ++i) {
-        fft_r[i] = std::real(hfft.X_hexgrid[i]);
-        fft_i[i] = std::imag(hfft.X_hexgrid[i]);
-    }
     // real
     fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, -hgw * 1.5f + fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_r);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_real_scalar;
     if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
     fhgv->zScale.null_scaling();
@@ -249,7 +240,8 @@ int main (int argc, char** argv)
     fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, -hgw * 1.5f - fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_i);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_imaginary_scalar;
     if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
     fhgv->zScale.null_scaling();
@@ -263,15 +255,12 @@ int main (int argc, char** argv)
     sm::vvec<std::complex<float>> invimg_out = hfft.inverse();
 
     // Show masked-outside FFT
-    for (std::uint32_t i = 0; i < fft_r.size(); ++i) {
-        fft_r[i] = std::real(hfft.X_hexgrid[i]);
-        fft_i[i] = std::imag(hfft.X_hexgrid[i]);
-    }
     // real
     fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, -hgw * 3.0f + fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_r);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_real_scalar;
     if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
     fhgv->zScale.null_scaling();
@@ -282,7 +271,8 @@ int main (int argc, char** argv)
     fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), o + sm::vec<float>{ hgw, -hgw * 3.0f - fhgw * 0.6f });
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_i);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_imaginary_scalar;
     if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
     fhgv->zScale.null_scaling();
@@ -291,12 +281,10 @@ int main (int argc, char** argv)
     v.addVisualModel (fhgv);
 
     // Inverse of masked inside
-    sm::vvec<float> img_rin (invimg_in.size(), 0.0f);
-    for (std::uint32_t i = 0; i < invimg_in.size(); ++i) { img_rin[i] = std::real (invimg_in[i]); }
-
     hgv = std::make_unique<mplot::HexGridVisual<float>>(&hg, o + sm::vec<float>{2.0f * hgw, -hgw * 1.5f});
     hgv->set_parent (v.get_id());
-    hgv->setScalarData (&img_rin);
+    hgv->setComplexData (&invimg_in);
+    hgv->complexHandling = mplot::complex_number_handling::as_real_scalar;
     hgv->cm.setType (img_cmap);
     hgv->zScale.null_scaling();
     hgv->addLabel ("Inverse FFT masked inside radius (high pass/low masked)", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
@@ -304,12 +292,10 @@ int main (int argc, char** argv)
     v.addVisualModel (hgv);
 
     // Inverse of masked outside
-    sm::vvec<float> img_rout (invimg_out.size(), 0.0f);
-    for (std::uint32_t i = 0; i < invimg_out.size(); ++i) { img_rout[i] = std::real (invimg_out[i]); }
-
     hgv = std::make_unique<mplot::HexGridVisual<float>>(&hg, o + sm::vec<float>{2.0f * hgw, -hgw * 3.0f});
     hgv->set_parent (v.get_id());
-    hgv->setScalarData (&img_rout);
+    hgv->setComplexData (&invimg_out);
+    hgv->complexHandling = mplot::complex_number_handling::as_real_scalar;
     hgv->cm.setType (img_cmap);
     hgv->zScale.null_scaling();
     hgv->addLabel ("Inverse FFT masked outside radius (low pass/ high masked)", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
