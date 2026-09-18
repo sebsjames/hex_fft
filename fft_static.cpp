@@ -61,14 +61,6 @@ void draw_set (mplot::Visual<>& v, const sm::vec<float>& o, const std::string& f
     // Compute the FFT
     hfft.forward (hex_image_data);
 
-    // Extract real and imaginary components into vvecs for visualization
-    sm::vvec<float> fft_r (hfft.X_hexgrid.size());
-    sm::vvec<float> fft_i (hfft.X_hexgrid.size());
-    for (std::uint32_t i = 0; i < fft_r.size(); ++i) {
-        fft_r[i] = std::real(hfft.X_hexgrid[i]);
-        fft_i[i] = std::imag(hfft.X_hexgrid[i]);
-    }
-
     // Get some information about the size of the frequency hexgrid. Uscale is a scaling factor to
     // make the frequency grid (which is 1/L units) approximately the same size in mathplot scene
     // coordinates as the image.
@@ -81,7 +73,8 @@ void draw_set (mplot::Visual<>& v, const sm::vec<float>& o, const std::string& f
     auto fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), fftpos);
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_r);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_real_scalar;
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::CET_D09);
     fhgv->hexVisMode = mplot::HexVisMode::HexInterp;
@@ -123,7 +116,8 @@ void draw_set (mplot::Visual<>& v, const sm::vec<float>& o, const std::string& f
     fhgv = std::make_unique<mplot::HexGridVisual<float, sm::hexalign::flat_up>>(hfft.hgf.get(), fftpos);
     fhgv->set_parent (v.get_id());
     fhgv->zoom = myUscale;
-    fhgv->setScalarData (&fft_i);
+    fhgv->setComplexData (&hfft.X_hexgrid);
+    fhgv->complexHandling = mplot::complex_number_handling::as_imaginary_scalar;
     fhgv->colourScale.compute_scaling (-900, 1200);
     fhgv->cm.setType (mplot::ColourMapType::CET_D09);
     fhgv->hexVisMode = mplot::HexVisMode::HexInterp;
