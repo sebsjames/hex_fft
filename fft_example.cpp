@@ -21,6 +21,7 @@ import mplot.loadpng;
 import mplot.visual;
 import mplot.hexgridvisual;
 import mplot.colourbarvisual;
+import mplot.axesvisual;
 
 int main (int argc, char** argv)
 {
@@ -120,9 +121,24 @@ int main (int argc, char** argv)
     if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
     fhgv->zScale.null_scaling();
-    fhgv->addLabel ("FFT (real component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
+    fhgv->addLabel ("FFT (real component)", sm::vec<float>{-fhhgw, fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     auto fhgvp = v.addVisualModel (fhgv);
+
+    // Axes for the real FFT
+    auto tav = std::make_unique<mplot::AxesVisual<float>>(o + sm::vec<float>{ hgw, fhgw * 0.6f } + sm::vec<>{-fhhgw, -fhhgw} );
+    tav->set_parent (v.get_id());
+    tav->axis_ends = {fhgw, fhgw};
+    tav->input_min = {-hfft.hgf->width() / 2.0f, -hfft.hgf->width() / 2.0f, 0};
+    tav->input_max = {hfft.hgf->width() / 2.0f, hfft.hgf->width() / 2.0f, 1};
+    tav->xlabel = "f_y";
+    tav->ylabel = "f_x";
+    tav->xaxislabelgap = 0.02f;
+    tav->yaxislabelgap = 0.0f;
+    tav->fontsize = 0.03f;
+    tav->axisstyle = mplot::axisstyle::L;
+    tav->finalize();
+    v.addVisualModel (tav);
 
     // Colourbar
     auto cbv = std::make_unique<mplot::ColourBarVisual<float>>(o + sm::vec<float>{ hgw + 1.1f * fhhgw, fhgw * 0.6f + 0.2f });
@@ -146,16 +162,35 @@ int main (int argc, char** argv)
     if constexpr (fixed_colourscale) { fhgv->colourScale = clrscale; }
     fhgv->cm.setType (fft_cmap);
     fhgv->zScale.null_scaling();
-    fhgv->addLabel ("FFT (imaginary component)", sm::vec<float>{-fhhgw, -fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
+    fhgv->addLabel ("FFT (imaginary component)", sm::vec<float>{-fhhgw, fhhgw * 1.1f}, mplot::TextFeatures(0.05f));
     fhgv->finalize();
     v.addVisualModel (fhgv);
+
+    // Axes
+    tav = std::make_unique<mplot::AxesVisual<float>>(o + sm::vec<float>{ hgw, -fhgw * 0.6f } + sm::vec<>{-fhhgw, -fhhgw} );
+    tav->set_parent (v.get_id());
+    tav->axis_ends = {fhgw, fhgw};
+    tav->input_min = {-hfft.hgf->width() / 2.0f, -hfft.hgf->width() / 2.0f, 0};
+    tav->input_max = {hfft.hgf->width() / 2.0f, hfft.hgf->width() / 2.0f, 1};
+    tav->xlabel = "f_y";
+    tav->ylabel = "f_x";
+    tav->xaxislabelgap = 0.02f;
+    tav->yaxislabelgap = 0.0f;
+    tav->fontsize = 0.03f;
+    tav->axisstyle = mplot::axisstyle::L;
+    tav->finalize();
+    v.addVisualModel (tav);
 
     // Call the inverse method to return the inverse FFT, which should recover the image
     sm::vvec<std::complex<float>> invimg = hfft.inverse();
 
     // Extract the real component of the returned inverse
     sm::vvec<float> img_r (invimg.size(), 0.0f);
-    for (std::uint32_t i = 0; i < invimg.size(); ++i) { img_r[i] = std::real (invimg[i]); }
+    sm::vvec<float> img_i (invimg.size(), 0.0f);
+    for (std::uint32_t i = 0; i < invimg.size(); ++i) {
+        img_r[i] = std::real (invimg[i]);
+        img_i[i] = std::imag (invimg[i]);
+    }
 
     // Visualize the real component of the inverse FFT - should look the same as the original image
     hgv = std::make_unique<mplot::HexGridVisual<float>>(&hg, o + sm::vec<float>{2.0f * hgw, 0.0f});
@@ -163,7 +198,27 @@ int main (int argc, char** argv)
     hgv->setScalarData (&img_r);
     hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
     hgv->zScale.null_scaling();
-    hgv->addLabel ("Inverse FFT", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
+    hgv->addLabel ("Inverse FFT (real)", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
+    hgv->finalize();
+    auto real_cscale = hgv->colourScale;
+    v.addVisualModel (hgv);
+
+    hgv = std::make_unique<mplot::HexGridVisual<float>>(&hg, o + sm::vec<float>{3.0f * hgw, 0.0f});
+    hgv->set_parent (v.get_id());
+    hgv->setScalarData (&img_i);
+    hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    hgv->zScale.null_scaling();
+    hgv->addLabel ("Inverse FFT (imag, autoscaled)", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
+    hgv->finalize();
+    v.addVisualModel (hgv);
+
+    hgv = std::make_unique<mplot::HexGridVisual<float>>(&hg, o + sm::vec<float>{4.0f * hgw, 0.0f});
+    hgv->set_parent (v.get_id());
+    hgv->setScalarData (&img_i);
+    hgv->cm.setType (mplot::ColourMapType::GreyscaleInv);
+    hgv->zScale.null_scaling();
+    hgv->colourScale = real_cscale;
+    hgv->addLabel ("Inverse FFT (imag, scaled as real)", sm::vec<float>{-hhgw, -hhgw * 1.1f}, mplot::TextFeatures(0.05f));
     hgv->finalize();
     v.addVisualModel (hgv);
 
